@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>遊戲計分系統</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <img src="../img/ntuca_name_logo.png" alt="NTUCA Logo" id="logo-img">
+        </div>
+        <div class="timer" id="timer">00:00.0</div>
+        <button class="settings-btn" id="settings-btn">⚙️</button>
+    </header>
+
+    <!-- 設定側邊欄 -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-content">
+            <button class="close-sidebar-btn" id="close-sidebar-btn" data-zh="✕" data-en="✕">✕</button>
+            <div class="setting-item">
+                <label class="switch-label" data-zh="暗黑模式" data-en="Dark Mode">暗黑模式</label>
+                <label class="switch">
+                    <input type="checkbox" id="dark-mode-toggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <label class="switch-label" data-zh="語言" data-en="Language">語言</label>
+                <label class="switch">
+                    <input type="checkbox" id="language-toggle">
+                    <span class="slider lang-slider"></span>
+                </label>
+            </div>
+            <button class="reset-btn" id="reset-btn" data-zh="重置遊戲" data-en="Reset Game">重置遊戲</button>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <div class="left-panel" id="left-panel">
+            <div class="input-group">
+                <label data-zh="遊戲時長 (分鐘)" data-en="Game Duration (minutes)">遊戲時長 (分鐘)</label>
+                <input type="number" id="game-duration" value="45" min="1" max="180">
+            </div>
+            <div class="input-group">
+                <label data-zh="遊戲人數" data-en="Number of Players">遊戲人數</label>
+                <input type="number" id="player-count" value="4" min="2" max="8">
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="right-top" id="right-top">
+                <button class="start-btn" id="start-btn" data-zh="開始遊戲" data-en="Start Game">
+                    開始遊戲
+                    <div class="progress-bar" id="progress"></div>
+                </button>
+            </div>
+            <div class="right-bottom">
+                <div class="players-panel" id="players-panel">
+                    <!-- 玩家座位將由JavaScript動態生成 -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
