@@ -87,27 +87,27 @@ class GameManager {
 
         // 災害圖片（窮舉 21 筆）
         this.eventImage = [
-            '../img/disaster1_img.png',
-            '../img/disaster1_img.png',
-            '../img/disaster1_img.png',
-            '../img/disaster1_img.png',
-            '../img/disaster1_img.png',
-            '../img/disaster1_img.png',
-            '../img/disaster1_img.png',
-            '../img/disaster1_img.png',
-            '../img/disaster1_img.png',
-            '../img/disaster1_img.png',
-            '../img/disaster1_img.png',
-            '../img/disaster1_img.png',
-            '../img/disaster1_img.png',
-            '../img/disaster1_img.png',
-            '../img/disaster1_img.png',
-            '../img/disaster1_img.png',
-            '../img/disaster1_img.png',
-            '../img/disaster1_img.png',
-            '../img/disaster1_img.png',
-            '../img/disaster1_img.png',
-            '../img/disaster1_img.png'
+            '../img/disaster01_img.png',
+            '../img/disaster02_img.png',
+            '../img/disaster03_img.png',
+            '../img/disaster04_img.png',
+            '../img/disaster05_img.png',
+            '../img/disaster06_img.png',
+            '../img/disaster07_img.png',
+            '../img/disaster08_img.png',
+            '../img/disaster09_img.png',
+            '../img/disaster10_img.png',
+            '../img/disaster11_img.png',
+            '../img/disaster12_img.png',
+            '../img/disaster13_img.png',
+            '../img/disaster14_img.png',
+            '../img/disaster15_img.png',
+            '../img/disaster16_img.png',
+            '../img/disaster17_img.png',
+            '../img/disaster18_img.png',
+            '../img/disaster19_img.png',
+            '../img/disaster20_img.png',
+            '../img/disaster21_img.png'
         ];
 
         // 災害影響區域
