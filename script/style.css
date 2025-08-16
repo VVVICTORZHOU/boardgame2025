@@ -664,6 +664,7 @@ input:checked + .lang-slider:after {
 
 .popup-img {
     height: 100%;
+    max-width: 300px;
     aspect-ratio: 1 / 1;
     object-fit: cover;
     border-radius: 8px;
@@ -679,7 +680,7 @@ input:checked + .lang-slider:after {
 
 .popup-right h2 {
     margin: 0;
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     color: var(--text-color);
 }
 
@@ -697,6 +698,12 @@ input:checked + .lang-slider:after {
     filter: drop-shadow(0 0 2px rgba(0,0,0,0.2));
 }
 
+.popup-right p {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--text-color);
+}
+
 .popup-region-buttons {
     display: flex;
     flex-wrap: wrap;
@@ -711,6 +718,7 @@ input:checked + .lang-slider:after {
     border: none;
     border-radius: 6px;
     cursor: pointer;
+    font-size: 1.2rem;
     transition: background-color 0.2s ease;
 }
 

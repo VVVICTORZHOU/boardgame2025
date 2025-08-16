@@ -681,8 +681,8 @@ class GameManager {
         
             const btn = document.createElement('button');
             const regionLabel = this.language === 'zh'
-                ? `區域 ${regionCode}（扣 ${penalty} 分）`
-                : `Region ${regionCode} (-${penalty} pts)`;
+                ? `區域 ${regionCode}` //（扣 ${penalty} 分）
+                : `Region ${regionCode}`; // (-${penalty} pts)`;
         
             btn.textContent = regionLabel;
             btn.className = 'region-penalty-btn';
