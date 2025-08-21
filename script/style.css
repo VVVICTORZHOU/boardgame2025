@@ -745,6 +745,48 @@ input:checked + .lang-slider:after {
     color: #fff;
 }
 
+#manual-score-controls {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.manual-score-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.5rem 0;
+}
+
+.manual-score-item label {
+    flex: 1;
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+.manual-score-input {
+    width: 60px;
+    padding: 0.25rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    text-align: center;
+}
+
+.apply-score-btn {
+    background-color: var(--button-bg);
+    color: #fff;
+    border: none;
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.apply-score-btn:hover {
+    background-color: var(--button-hover);
+}
 
 
 /* 響應式設計調整 */

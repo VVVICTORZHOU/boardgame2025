@@ -367,6 +367,10 @@ class GameManager {
         // 啟動計時器
         this.timer = this.gameDuration * 60; // 轉換為秒
         this.startTimer();
+
+        // 為側邊欄添加手動修改分數控制
+        this.createManualScoreControls();
+    
         
         // 更新玩家座位顯示
         this.updateStatsPanel();
@@ -418,6 +422,15 @@ class GameManager {
             scoreDisplay.appendChild(scoreDiv);
         });
     }
+
+    updateManualScoreControls() {
+        const inputs = document.querySelectorAll('#manual-score-controls .manual-score-input');
+        inputs.forEach(input => {
+            const index = parseInt(input.dataset.playerIndex);
+            input.value = this.scores[index];
+        });
+    }
+    
     
     updateGamePlayerSeats() {
         const seats = document.querySelectorAll('.player-seat');
@@ -429,6 +442,51 @@ class GameManager {
         });
     }
     
+    createManualScoreControls() {
+        const sidebarContent = document.querySelector('.sidebar-content');
+        let manualDiv = document.getElementById('manual-score-controls');
+    
+        // 避免重複添加
+        if (manualDiv) manualDiv.remove();
+    
+        manualDiv = document.createElement('div');
+        manualDiv.id = 'manual-score-controls';
+        manualDiv.innerHTML = `<h3 style="margin-top:1rem;" data-zh="手動更改分數" data-en="Manual Score Adjust">手動更改分數</h3>`;
+    
+        this.players.forEach((player, index) => {
+            const control = document.createElement('div');
+            control.className = 'manual-score-item';
+            control.innerHTML = `
+                <label>${player}</label>
+                <input type="number" value="${this.scores[index]}" data-player-index="${index}" class="manual-score-input">
+                <button class="apply-score-btn" data-player-index="${index}" data-zh="套用" data-en="Apply">套用</button>
+            `;
+            manualDiv.appendChild(control);
+        });
+    
+        sidebarContent.appendChild(manualDiv);
+    
+        // 綁定事件
+        const applyBtns = manualDiv.querySelectorAll('.apply-score-btn');
+        applyBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const index = parseInt(btn.dataset.playerIndex);
+                const input = manualDiv.querySelector(`.manual-score-input[data-player-index="${index}"]`);
+                const newScore = parseInt(input.value);
+    
+                if (!isNaN(newScore)) {
+                    this.scores[index] = newScore;
+                    this.updateScoreDisplay();
+                    this.updateGamePlayerSeats();
+                    this.updateStatsPanel();
+                }
+            });
+        });
+    
+        // 語言同步
+        this.updateLanguage();
+    }
+    
     addScore(points) {
         if (!this.gameStarted) return;
         
@@ -437,6 +495,7 @@ class GameManager {
         this.updateScoreDisplay();
         this.triggerDisasterEvent();
         this.updateStatsPanel(); // 原本統計更新仍保留
+        this.updateManualScoreControls(); // 更新手動分數控制面板
 
     }
     
@@ -534,8 +593,8 @@ class GameManager {
         } else if (count === 3) {
             this.showDisasterDetailPopup(id);
 
-            // 1 秒延遲後觸發
-            const delay = 1000 //1000 ms
+            // 0.5 秒延遲後觸發
+            const delay = 500 //500 ms
             setTimeout(() => {
                 this.removeDisasterWatch(id);
                 this.eventCounts[id] = 0;
@@ -621,14 +680,16 @@ class GameManager {
         const imgSrc = this.eventImage[id - 1];
         const areas = this.eventObject[id - 1];
         const penalties = this.eventPenalty[id - 1];
+        const intensityratio = 0.4; // 假設強度比例為 1（可根據實際需求調整）
     
         // 建立屬性圖示：使用四捨五入顯示強度（每屬性可 0~3 個圖）
+        //todo 
         const roundedAttrs = [
-            Math.round(this.eventAttrCoast[id - 1]),
-            Math.round(this.eventAttrColdSurge[id - 1]),
-            Math.round(this.eventAttrFlood[id - 1]),
-            Math.round(this.eventAttrHeatWave[id - 1]),
-            Math.round(this.eventAttrEcology[id - 1])
+            Math.round(this.eventAttrCoast[id - 1] * intensityratio) ,
+            Math.round(this.eventAttrColdSurge[id - 1] * intensityratio) ,
+            Math.round(this.eventAttrFlood[id - 1] * intensityratio),
+            Math.round(this.eventAttrHeatWave[id - 1] * intensityratio),
+            Math.round(this.eventAttrEcology[id - 1] * intensityratio)
         ];
     
         const attrIcons = [];
@@ -663,50 +724,71 @@ class GameManager {
         attrRow.className = 'popup-attr-row';
         attrIcons.forEach(icon => attrRow.appendChild(icon));
         
-        const penalityText = document.createElement('p');
-        penalityText.className = 'popup-penalty-text';
-        penalityText.textContent = this.language === 'zh'
-            ? `扣 ${penalties[0] || 1} 分`
-            : `Penalty: -${penalties[0] || 1} pts`;
 
-        const regionButtons = document.createElement('div');
-        regionButtons.className = 'popup-region-buttons';
+        right.appendChild(title);
+        right.appendChild(attrRow);
 
-    
-        areas.forEach((regionCode, idx) => {
-            const playerIndex = this.players.findIndex(name => name.includes(regionCode));
-            if (playerIndex === -1) return; // ❌ 無對應玩家 → 不建立按鈕
+
+        // ✅ 判斷是否所有屬性皆為 0
+        if (roundedAttrs.every(v => v === 0)) {
+            const safeMsg = document.createElement('p');
+            safeMsg.className = 'popup-safe-msg flash-safe';
+            safeMsg.textContent = this.language === 'zh'
+                ? '這次災害過於微弱，未造成任何影響！'
+                : 'This disaster was too weak, no effect occurred!';
+            right.appendChild(safeMsg);
+            
+        } else {
+            const penalityText = document.createElement('p');
+            penalityText.className = 'popup-penalty-text';
+            penalityText.textContent = this.language === 'zh'
+                ? `扣 ${penalties[0] || 1} 分`
+                : `Penalty: -${penalties[0] || 1} pts`;
+
+            const regionButtons = document.createElement('div');
+            regionButtons.className = 'popup-region-buttons';
+
         
-            const penalty = penalties[idx] || 1;
-        
-            const btn = document.createElement('button');
-            const regionLabel = this.language === 'zh'
-                ? `區域 ${regionCode}` //（扣 ${penalty} 分）
-                : `Region ${regionCode}`; // (-${penalty} pts)`;
-        
-            btn.textContent = regionLabel;
-            btn.className = 'region-penalty-btn';
-        
-            btn.addEventListener('click', () => {
-                this.scores[playerIndex] -= penalty;
-                this.updateScoreDisplay();
-                this.updateGamePlayerSeats(); // 左下座位同步顯示 active 狀態與玩家名
-                this.updateStatsPanel();      // 右下統計更新
-                
-                btn.disabled = true;
-                
-                // 👇 讓該玩家區塊閃紅提示
-                const scoreBlocks = document.querySelectorAll('.player-score');
-                if (scoreBlocks[playerIndex]) {
-                    scoreBlocks[playerIndex].classList.add('flash-penalty');
-                    setTimeout(() => {
-                        scoreBlocks[playerIndex].classList.remove('flash-penalty');
-                    }, 400);
-                }
+            areas.forEach((regionCode, idx) => {
+                const playerIndex = this.players.findIndex(name => name.includes(regionCode));
+                if (playerIndex === -1) return; // ❌ 無對應玩家 → 不建立按鈕
+            
+                const penalty = penalties[idx] || 1;
+            
+                const btn = document.createElement('button');
+                const regionLabel = this.language === 'zh'
+                    ? `區域 ${regionCode}` //（扣 ${penalty} 分）
+                    : `Region ${regionCode}`; // (-${penalty} pts)`;
+            
+                btn.textContent = regionLabel;
+                btn.className = 'region-penalty-btn';
+            
+                btn.addEventListener('click', () => {
+                    this.scores[playerIndex] -= penalty;
+                    this.updateScoreDisplay();
+                    this.updateManualScoreControls(); // 🔥 同步更新側邊欄輸入框
+                    this.updateGamePlayerSeats(); // 左下座位同步顯示 active 狀態與玩家名
+                    this.updateStatsPanel();      // 右下統計更新
+                    
+                    
+                    btn.disabled = true;
+                    
+                    // 👇 讓該玩家區塊閃紅提示
+                    const scoreBlocks = document.querySelectorAll('.player-score');
+                    if (scoreBlocks[playerIndex]) {
+                        scoreBlocks[playerIndex].classList.add('flash-penalty');
+                        setTimeout(() => {
+                            scoreBlocks[playerIndex].classList.remove('flash-penalty');
+                        }, 400);
+                    }
+                });
+            
+                regionButtons.appendChild(btn);
             });
-        
-            regionButtons.appendChild(btn);
-        });
+
+            right.appendChild(penalityText);
+            right.appendChild(regionButtons);
+        }
         
     
         const clearBtn = document.createElement('button');
@@ -716,12 +798,9 @@ class GameManager {
             popup.remove();
         });
     
-        right.appendChild(title);
-        right.appendChild(attrRow);
-        right.appendChild(penalityText);
-        right.appendChild(regionButtons);
+
+
         right.appendChild(clearBtn);
-    
         popup.appendChild(left);
         popup.appendChild(right);
     
