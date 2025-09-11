@@ -11,6 +11,9 @@ class GameManager {
         this.darkMode = false;
         this.round = 1;  // 第一回合從1開始
         this.turnCount = 0; // 玩家輪過的次數
+        this.actionAcount = 0; // 玩家調適行動次數
+        this.actionMcount = 0; // 玩家減碳行動次數
+        this.actionNcount = 0; // 玩家無作為行動次數
 
 
         this.eventIds = Array.from({ length: 21 }, (_, i) => i + 1);
@@ -180,6 +183,7 @@ class GameManager {
         this.startBtn = document.getElementById('start-btn');
         this.gameDurationInput = document.getElementById('game-duration');
         this.playerCountInput = document.getElementById('player-count');
+        this.difficultyRatioInput = document.getElementById('difficulty-ratio');
         this.closeSidebarBtn = document.getElementById('close-sidebar-btn'); // ← 加這行
     }
 
@@ -381,7 +385,7 @@ class GameManager {
             <div class="scoreboard">
                 <div class="score-display" id="score-display"></div>
                 <div class="score-buttons">
-                    <button class="score-btn add-0" data-score="0">+0</button>
+                    <button class="score-btn add-0" data-score="-1">+X</button>
                     <button class="score-btn add-0" data-score="0">+0</button>
                     <button class="score-btn add-1" data-score="1">+1</button>
                     <button class="score-btn add-2" data-score="2">+2</button>
@@ -489,6 +493,20 @@ class GameManager {
     
     addScore(points) {
         if (!this.gameStarted) return;
+
+        // 如果 points 為 -1，則 actionNcount +1，並將 points 設為 0
+        // 如果 points 為 0，則 actionAcount +1
+        // 如果 points 為 1 或 2，則 actionMcount +1 或 2
+        if (points === -1) {
+            this.actionNcount++;
+            points = 0;
+        } else if (points === 0) {
+            this.actionAcount++;
+        } else if (points === 1) {
+            this.actionMcount++;
+        } else if (points === 2) {
+            this.actionMcount += 2;
+        }
         
         this.scores[this.currentPlayer] += points;
         this.nextPlayer();
@@ -680,16 +698,26 @@ class GameManager {
         const imgSrc = this.eventImage[id - 1];
         const areas = this.eventObject[id - 1];
         const penalties = this.eventPenalty[id - 1];
-        const intensityratio = 0.4; // 假設強度比例為 1（可根據實際需求調整）
-    
+        const intensityratio = 0.4; // 假設強度比例為 1（可根據實際需求調整
+        const AdaptationNum = this.actionAcount;
+        const MitigationNum = this.actionMcount;
+        const NoactionNum = this.actionNcount;
+        const playerCount = this.players.length;
+        const difficultyRatio = parseFloat(this.difficultyRatioInput.value) || 1;
+        let ratio = 1; // 預設值
+
+        ratio = intensityratio + (AdaptationNum + NoactionNum) * (1/(8 * playerCount * difficultyRatio) - 0.4/160)
+        
+        console.log(`AdaptationNum: ${AdaptationNum}, MitigationNum: ${MitigationNum}, NoactionNum: ${NoactionNum}, playerCount: ${playerCount}, difficulty: ${difficultyRatio}, >>> ratio: ${ratio}`);
+
         // 建立屬性圖示：使用四捨五入顯示強度（每屬性可 0~3 個圖）
         //todo 
         const roundedAttrs = [
-            Math.round(this.eventAttrCoast[id - 1] * intensityratio) ,
-            Math.round(this.eventAttrColdSurge[id - 1] * intensityratio) ,
-            Math.round(this.eventAttrFlood[id - 1] * intensityratio),
-            Math.round(this.eventAttrHeatWave[id - 1] * intensityratio),
-            Math.round(this.eventAttrEcology[id - 1] * intensityratio)
+            Math.round(this.eventAttrCoast[id - 1] *ratio) ,
+            Math.round(this.eventAttrColdSurge[id - 1] *ratio) ,
+            Math.round(this.eventAttrFlood[id - 1] *ratio),
+            Math.round(this.eventAttrHeatWave[id - 1] *ratio),
+            Math.round(this.eventAttrEcology[id - 1] *ratio)
         ];
     
         const attrIcons = [];
@@ -825,6 +853,10 @@ class GameManager {
         this.turnCount = 0; // 重置玩家輪過的次數
         this.eventCounts = {};  // 重置事件計數
         this.activeWatches = {}; // 重置活動的 Watch 方塊
+        this.actionAcount = 0; // 重置行動次數
+        this.actionMcount = 0;
+        this.actionNcount = 0;
+
         
         // 重置輸入值
         this.gameDurationInput.value = 45;
@@ -833,14 +865,30 @@ class GameManager {
         
         // 恢復左側面板
         this.leftPanel.innerHTML = `
+        
             <div class="input-group">
                 <label data-zh="遊戲時長 (分鐘)" data-en="Game Duration (minutes)">遊戲時長 (分鐘)</label>
-                <input type="number" id="game-duration" value="45" min="1" max="180">
+                <div class="input-with-btn">
+                    <input type="number" id="game-duration" value="45" min="10" max="180">
+                    <button class="help-btn" data-message="遊戲時長決定每局遊戲的分鐘數，預設為 45 分鐘。The game duration sets the length of each game in minutes, default is 45 minutes.">?</button>
+                    
+                </div>
             </div>
             <div class="input-group">
                 <label data-zh="遊戲人數" data-en="Number of Players">遊戲人數</label>
-                <input type="number" id="player-count" value="4" min="2" max="8">
+                <div class="input-with-btn">
+                    <input type="number" id="player-count" value="4" min="2" max="8">
+                    <button class="help-btn" data-message="此欄決定遊戲中參與的玩家數量，預設為 4 人，允許 3 至 6 人參加。This field sets the number of players participating in the game, default is 4 players, allowing 3 to 6 players.">?</button>
+                </div>
             </div>
+            <div class="input-group">
+                <label data-zh="難度冗額" data-en="Difficulty Multiplier">難度冗額</label>
+                <div class="input-with-btn">
+                    <input type="number" id="difficulty-ratio" value="3" min="1.5" max="5" step="0.1">
+                    <button class="help-btn" data-message="設定遊戲難度倍率，數值越大越難，預設為 3。Sets the game difficulty multiplier, higher values increase difficulty, default is 3.">?</button>
+                </div>
+            </div>
+        
         `;
         
         // 恢復右上面板
@@ -851,6 +899,7 @@ class GameManager {
         // 重新初始化元素和事件監聽器
         this.gameDurationInput = document.getElementById('game-duration');
         this.playerCountInput = document.getElementById('player-count');
+        this.difficultyRatioInput = document.getElementById('difficulty-ratio');
         this.startBtn = document.getElementById('start-btn');
         
         this.gameDurationInput.addEventListener('change', () => {
@@ -901,6 +950,15 @@ function showMessage(type = 'notification', title = '', content = '') {
         setTimeout(() => container.remove(), 300); // 加一點淡出動畫效果
     });
 }
+
+
+
+document.querySelectorAll('.help-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const msg = btn.dataset.message;
+        showMessage('notification', '功能提示 Function Info.', msg);
+    });
+});
 
 // 一般通知
 //showMessage('notification', '設定成功', '已儲存遊戲設定。');
