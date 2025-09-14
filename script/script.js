@@ -767,41 +767,31 @@ class GameManager {
             right.appendChild(safeMsg);
             
         } else {
-            const penalityText = document.createElement('p');
-            penalityText.className = 'popup-penalty-text';
-            penalityText.textContent = this.language === 'zh'
-                ? `扣 ${penalties[0] || 1} 分`
-                : `Penalty: -${penalties[0] || 1} pts`;
-
             const regionButtons = document.createElement('div');
             regionButtons.className = 'popup-region-buttons';
-
         
             areas.forEach((regionCode, idx) => {
                 const playerIndex = this.players.findIndex(name => name.includes(regionCode));
                 if (playerIndex === -1) return; // ❌ 無對應玩家 → 不建立按鈕
-            
+        
                 const penalty = penalties[idx] || 1;
-            
+        
                 const btn = document.createElement('button');
-                const regionLabel = this.language === 'zh'
-                    ? `區域 ${regionCode}` //（扣 ${penalty} 分）
-                    : `Region ${regionCode}`; // (-${penalty} pts)`;
-            
-                btn.textContent = regionLabel;
+                btn.textContent = this.language === 'zh'
+                    ? `區域 ${regionCode}`
+                    : `Region ${regionCode}`;
+        
                 btn.className = 'region-penalty-btn';
-            
+        
                 btn.addEventListener('click', () => {
                     this.scores[playerIndex] -= penalty;
                     this.updateScoreDisplay();
-                    this.updateManualScoreControls(); // 🔥 同步更新側邊欄輸入框
-                    this.updateGamePlayerSeats(); // 左下座位同步顯示 active 狀態與玩家名
-                    this.updateStatsPanel();      // 右下統計更新
-                    
-                    
+                    this.updateManualScoreControls();
+                    this.updateGamePlayerSeats();
+                    this.updateStatsPanel();
+        
                     btn.disabled = true;
-                    
-                    // 👇 讓該玩家區塊閃紅提示
+        
                     const scoreBlocks = document.querySelectorAll('.player-score');
                     if (scoreBlocks[playerIndex]) {
                         scoreBlocks[playerIndex].classList.add('flash-penalty');
@@ -810,12 +800,21 @@ class GameManager {
                         }, 400);
                     }
                 });
-            
+        
                 regionButtons.appendChild(btn);
             });
-
-            right.appendChild(penalityText);
-            right.appendChild(regionButtons);
+        
+            // ✅ 只有當有按鈕時才顯示扣分文字與區域
+            if (regionButtons.childNodes.length > 0) {
+                const penalityText = document.createElement('p');
+                penalityText.className = 'popup-penalty-text';
+                penalityText.textContent = this.language === 'zh'
+                    ? `扣 ${penalties[0] || 1} 分`
+                    : `Penalty: -${penalties[0] || 1} pts`;
+        
+                right.appendChild(penalityText);
+                right.appendChild(regionButtons);
+            }
         }
         
     
@@ -884,8 +883,8 @@ class GameManager {
             <div class="input-group">
                 <label data-zh="難度冗額" data-en="Difficulty Multiplier">難度冗額</label>
                 <div class="input-with-btn">
-                    <input type="number" id="difficulty-ratio" value="3" min="1.5" max="5" step="0.1">
-                    <button class="help-btn" data-message="設定遊戲難度倍率，數值越小越難，預設為 3。Sets the game difficulty multiplier, lower values increase difficulty, default is 3.">?</button>
+                    <input type="number" id="difficulty-ratio" value="2.5" min="1" max="5" step="0.1">
+                    <button class="help-btn" data-message="設定遊戲難度倍率，數值越小越難，預設為 2.5。Sets the game difficulty multiplier, lower values increase difficulty, default is 2.5.">?</button>
                 </div>
             </div>
         
