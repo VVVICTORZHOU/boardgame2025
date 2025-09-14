@@ -780,7 +780,6 @@ class GameManager {
                 btn.textContent = this.language === 'zh'
                     ? `區域 ${regionCode}`
                     : `Region ${regionCode}`;
-        
                 btn.className = 'region-penalty-btn';
         
                 btn.addEventListener('click', () => {
@@ -804,8 +803,8 @@ class GameManager {
                 regionButtons.appendChild(btn);
             });
         
-            // ✅ 只有當有按鈕時才顯示扣分文字與區域
             if (regionButtons.childNodes.length > 0) {
+                // ✅ 有受災玩家 → 顯示扣分提示
                 const penalityText = document.createElement('p');
                 penalityText.className = 'popup-penalty-text';
                 penalityText.textContent = this.language === 'zh'
@@ -814,6 +813,14 @@ class GameManager {
         
                 right.appendChild(penalityText);
                 right.appendChild(regionButtons);
+            } else {
+                // ✅ 無受災玩家 → 顯示提示訊息
+                const noImpactMsg = document.createElement('p');
+                noImpactMsg.className = 'popup-safe-msg flash-safe';
+                noImpactMsg.textContent = this.language === 'zh'
+                    ? '本次災害未影響任何玩家！'
+                    : 'This disaster did not affect any player!';
+                right.appendChild(noImpactMsg);
             }
         }
         
