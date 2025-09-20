@@ -385,10 +385,10 @@ class GameManager {
             <div class="scoreboard">
                 <div class="score-display" id="score-display"></div>
                 <div class="score-buttons">
-                    <button class="score-btn add-0" data-score="-1">+X</button>
-                    <button class="score-btn add-0" data-score="0">+0</button>
-                    <button class="score-btn add-1" data-score="1">+1</button>
-                    <button class="score-btn add-2" data-score="2">+2</button>
+                    <button class="score-btn add-0" data-score="-1">Tokens</button>
+                    <button class="score-btn add-0" data-score="0">Adapt.</button>
+                    <button class="score-btn add-1" data-score="1">M+1</button>
+                    <button class="score-btn add-2" data-score="2">M+2</button>
                 </div>
             </div>
         `;
